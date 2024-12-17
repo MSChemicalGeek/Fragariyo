@@ -618,7 +618,7 @@ def ifragments(analysis_name, sequence, types=('b', 'y'), maxcharge=1, maxstart 
             else:
                 # print(f"modsdictio = {modsdictio}")
                 # print(f"modbool = {modbool}")
-                if modbool[0] != "FALSE":
+                if modbool:
                     # print("Considering modifications!")
                     mass_calc(iseq, types, maxcharge, global_dict, ss_bonds=0, cysmod_dict=0,
                               cys_num=0, cysloc=0, sscount=0, iseqstart=iseqstart, iseqend=iseqend, reverse_flag=reverse_seq,
