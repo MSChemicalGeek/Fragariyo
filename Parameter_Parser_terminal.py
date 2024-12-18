@@ -338,7 +338,7 @@ class ExpIon:
             self.data_list = init_data
         else:
             # mMass data, which does not have many of these fields
-            self.mz_mono = round(init_data[0], 3)
+            self.mz_mono = round(init_data[0], 4)
             self.pkht_cluster = init_data[1]
             self.charge = init_data[4]
 
@@ -349,6 +349,7 @@ class ExpIon:
             self.data_list = init_data
             # allow easy use of Dmitry-based proc methods
             self.pkar_cluster = self.pkht_cluster
+            self.isotopeenvelope = init_data[7]
         self.cal_mz_mono = None
 
     def __lt__(self, other):
@@ -503,7 +504,7 @@ def parse_mmass_peaklist(input_file):
             arg_list = []
             try:
                 for value in splits:
-                    if value is not '':
+                    if value != '':
                         myval = float(value)
                         arg_list.append(myval)
                     else:
@@ -534,7 +535,7 @@ def parse_single_exp_mmass_zcheck(input_file):
             arg_list = []
             try:
                 for value in splits:
-                    if value is not '':
+                    if value != '':
                         myval = float(value)
                         arg_list.append(myval)
                     else:
@@ -561,32 +562,33 @@ def csvfile_parser(csv_file):
     peak_list = []
     with open(csv_file, 'r') as peaks_file:
         lines = list(peaks_file)
+        print(lines)
         for line in lines:
             if line.startswith("#"):
                 continue
             line = line.rstrip('\n')
             splits = line.split(',')
+            print(splits)
 
             arg_list = []
-            try:
-                for value in splits:
-                    if value is not '':
-                        myval = float(value)
-                        arg_list.append(myval)
-                    else:
-                        arg_list.append(value)
+            for value in splits:
+                if value:
+                    arg_list.append(value)
 
-            except ValueError:
-                # this is a header line, continue to the next line
-                continue
-
-            # print(arg_list)
+            print(arg_list)
             # re-organize arg list to match expected input format
 
+            mz = arg_list[0]
             charge = arg_list[1]
+            intensity = arg_list[2]
+            isotopicenvelope_centroid = arg_list[4]
 
-            if str(int(charge)).isnumeric():
-                ordered_list = [arg_list[0], arg_list[2], "", "", charge, "", ""]
+            if str(charge).isnumeric():
+
+                try:
+                    ordered_list = [float(mz), float(intensity), "", "", int(charge), "", "", isotopicenvelope_centroid]
+                except ValueError:
+                    print(" One of the peak attributes is the wrong type. Check that no value for each peak is missing.")
 
                 # create a new exp cluster object using the input data from this line and append it to the peak_list
                 peak = ExpIon(ordered_list, True)
@@ -596,7 +598,7 @@ def csvfile_parser(csv_file):
             else:
                 print(f"The charge values are no numeric! Please check the column format of the experimental ion CSV")
                 break
-
+    print(f"peak_list = {peak_list}")
     return peak_list
 
 
