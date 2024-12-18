@@ -5,7 +5,6 @@ import os.path
 from tkinter import filedialog
 import pandas
 import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy.signal import find_peaks
 import numpy as np
 import ms_deisotope
@@ -31,8 +30,11 @@ def signaltonoise(ms_spectrum, axis=0, ddof=0, sectionum = 10, abovethreshold=3)
 
     return results
 
-def peaklist_fromrawcsv(numberofsections, timesabovenoise):
+def peaklist_fromrawcsv(numberofsections, timesabovenoise, deiso_scorenum=190):
     coordinatesfile = filedialog.askopenfilename(title='Select Coordinate files', filetypes=[('CSV', '.csv')])
+    # where to save results
+    outputfolder = os.path.dirname(coordinatesfile)
+    os.chdir(outputfolder)
 
     ms_data = pandas.read_csv(coordinatesfile, header=1)
 
@@ -75,10 +77,10 @@ def peaklist_fromrawcsv(numberofsections, timesabovenoise):
     # print(allindeces_arr)
     peak_data = ms_data.iloc[allindeces_arr]
     # print(peak_data)
-    sns.scatterplot(x=peak_data["mz"], y=peak_data["int"],
+    plt.scatter(x=peak_data["mz"], y=peak_data["int"],
                     color='red', alpha=0.5)
 
-    plt.savefig("peak_picking.png")
+
 
     #
     # print(peak_data)
@@ -104,28 +106,38 @@ def peaklist_fromrawcsv(numberofsections, timesabovenoise):
 
     outputstr = "mz,z,intensity,score,envelope\n"
     deisotope_mz = []
-    deisotope_int =[]
+
+    zlabels = []
     for peak in deconvoluted_peaks:
-        if peak.score >= 190 and len(peak.envelope) > 2:
-            outputstr += f"{peak.mz},{peak.charge},{peak.intensity},{peak.score},{peak.envelope}\n"
+        if peak.score >= deiso_scorenum and len(peak.envelope) > 2:
+            # peak.intensity is the whole summed area of the envelope
+            mzmono_intensity = peak.envelope[0][1]
+            envelopeforpriting = []
+            for mz_pair in peak.envelope:
+                envelopeforpriting.append(mz_pair)
+            strenvelope = str(envelopeforpriting)
+            envelopeforpriting_final = strenvelope.replace(",", ";")
+            outputstr += f"{peak.mz},{peak.charge},{mzmono_intensity},{peak.score},{envelopeforpriting_final}\n"
             deisotope_mz.append(peak.mz)
-            deisotope_int.append(peak.intensity)
+            # deisotope_int.append(peak.intensity-10)
+            zlabels.append(peak.charge)
+    deisotope_int = [0] * len(deisotope_mz)
 
-    # where to save
-    outputfolder = os.path.dirname(coordinatesfile)
-    # File path for the CSV file
-    csv_file_path = os.path.join(outputfolder, 'deconvolutedpeaklist.csv')
 
-    with open(csv_file_path, 'w') as f:
+    with open('deconvolutedpeaklist.csv', 'w') as f:
         # Write some text to the file
         f.write(outputstr)
 
-    sns.scatterplot(x=deisotope_mz, y=deisotope_int,
-                    color='green', alpha=0.90)
+    plt.scatter(x=deisotope_mz, y=[0]*len(deisotope_mz),
+                    color='green', alpha=0.3)
 
-    plt.savefig("peak_picking.png")
+    for i, txt in enumerate(zlabels):
+        plt.annotate(txt, (deisotope_mz[i], deisotope_int[i]))
+
+    plt.show()
+
 
 
 if __name__ == '__main__':
 
-   peaklist_fromrawcsv(10, 3)
+   peaklist_fromrawcsv(10, 3, 190)
