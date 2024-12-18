@@ -229,21 +229,21 @@ plt.show()
 # print(diff)
 # print(sum(diff))
 
-print("Find peaks")
-
-peaks = scipy.signal.find_peaks(intensity)
-print(f"Peaks = {peaks}")
-prominances = scipy.signal.peak_prominences(intensity, peaks[0])
-print(f"Prominances = {prominances}")
-print(prominances[0])
-
-print(f"Intensity = {len(intensity)} and Intensity_o = {len(intensity_o)}")
-corr = np.corrcoef(intensity,intensity_o)
-print(f"Corr = {corr}")
-for x in corr:
-    print(x)
-    for ele in x:
-        print(ele)
-print(f"Corr score = {corr[0][1]}")
-
+# print("Find peaks")
+#
+# peaks = scipy.signal.find_peaks(intensity)
+# print(f"Peaks = {peaks}")
+# prominances = scipy.signal.peak_prominences(intensity, peaks[0])
+# print(f"Prominances = {prominances}")
+# print(prominances[0])
+#
+# print(f"Intensity = {len(intensity)} and Intensity_o = {len(intensity_o)}")
+# corr = np.corrcoef(intensity,intensity_o)
+# print(f"Corr = {corr}")
+# for x in corr:
+#     print(x)
+#     for ele in x:
+#         print(ele)
+# print(f"Corr score = {corr[0][1]}")
+#
 
