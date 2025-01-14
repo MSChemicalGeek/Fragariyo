@@ -24,7 +24,7 @@ def signaltonoise(ms_spectrum, axis=0, ddof=0, sectionum = 10, abovethreshold=3)
         # Calculating means
         # print(f"indx = {indx}")
         meancalculation = listofslices_int[indx].mean(axis)
-        print(meancalculation)
+        # print(meancalculation)
         results.append([listofslices_int[indx], listofslices_mz[indx], meancalculation*abovethreshold])
 
 
@@ -93,18 +93,18 @@ def peaklist_fromrawcsv(numberofsections, timesabovenoise, deiso_scorenum=190):
     preparedpeaks = ms_deisotope.deconvolution.utils.prepare_peaklist(peak_data.values.tolist())
     print(preparedpeaks)
 
-    print("--- %s seconds preparing ---" % (time.time() - start_time))
+    print("--- %s seconds preparing ---" % (round(time.time() - start_time, 4)))
 
     start_time = time.time()
     deconvoluted_peaks, _ = ms_deisotope.deconvolute_peaks(preparedpeaks, averagine=ms_deisotope.peptide,
                                                            scorer=ms_deisotope.MSDeconVFitter(10.),
                                                            use_quick_charge=False, left_search_limit=2,
-                                                           right_search_limit=2)
+                                                           right_search_limit=4)
     print(deconvoluted_peaks)
 
-    print("--- %s seconds deconvoluting ---" % (time.time() - start_time))
+    print("--- %s seconds deconvoluting ---" % (round(time.time() - start_time, 2)))
 
-    outputstr = "mz,z,intensity,score,envelope\n"
+    outputstr = "#mz,z,intensity,score,envelope\n"
     deisotope_mz = []
 
     zlabels = []
@@ -124,7 +124,7 @@ def peaklist_fromrawcsv(numberofsections, timesabovenoise, deiso_scorenum=190):
     deisotope_int = [0] * len(deisotope_mz)
 
 
-    with open('deconvolutedpeaklist.csv', 'w') as f:
+    with open(f'{os.path.basename(coordinatesfile)}_peaklist.csv', 'w') as f:
         # Write some text to the file
         f.write(outputstr)
 
@@ -134,7 +134,8 @@ def peaklist_fromrawcsv(numberofsections, timesabovenoise, deiso_scorenum=190):
     for i, txt in enumerate(zlabels):
         plt.annotate(txt, (deisotope_mz[i], deisotope_int[i]))
 
-    plt.show()
+    # There are some issues at the package level with this...leave it alone for now
+    # plt.show()
 
 
 
