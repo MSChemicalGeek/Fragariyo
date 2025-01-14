@@ -27,6 +27,7 @@ import matplotlib
 import RenameIMTBXoutputs
 import Modifications
 import OutputAnalysis_v2
+import PeakPicking_and_Deisotoping
 
 
 
@@ -101,12 +102,17 @@ class Fragariyo(object):
             'on_merginginternal_clicked':self.combining_internalouttsv,
             'on_averaginginternal_clicked':self.averaging_internalouttsv,
             'on_termfragplotterinput_clicked':self.on_termfragplotterinput_clicked,
-            'on_internfragplotter_clicked':self.on_internfragplotter_clicked
+            'on_internfragplotter_clicked':self.on_internfragplotter_clicked,
+            "on_button_peakpickdeiso_fromraw_clicked": self.on_button_peakpickdeiso_fromraw_clicked
 
 
         }
         builder.connect_callbacks(callbacks)
 
+        # Peak picking extra params
+        self.noisesections_val = self.builder.get_object('numberofsectionsvalue_entry')
+        self.signalabovenoise_val = self.builder.get_object('timesabovenoise_entry')
+        # Internal fragment extra params
         self.massresolution = self.builder.get_object('massresolution')
         self.toleranceerror = self.builder.get_object('toleranceerror')
 
@@ -382,7 +388,7 @@ class Fragariyo(object):
         """
         hitsfiles = filedialog.askopenfilenames(title='Load Hits Files', filetypes=[('Hits', '.hits')])
 
-        OutputAnalysis_v2.frips_main_seq_cov(hitsfiles, seqcov=True, seqcov_iontype=False, combination=True)
+        OutputAnalysis_v2.frips_main_seq_cov(hitsfiles, seqcov=False, seqcov_iontype=False, combination=True)
 
     def on_termfragplotterinput_clicked(self):
         """
@@ -427,6 +433,15 @@ class Fragariyo(object):
         inputfiles = filedialog.askopenfilenames(title='Load Hits Files',
                                                  filetypes=[('Internal Fragments', '.tsv')])
         OutputAnalysis_v2.fragment_plotter(inputfiles,outputdir=self.output_dir, internal=True)
+
+    def on_button_peakpickdeiso_fromraw_clicked(self):
+        """
+        Function to convert raw data to a peaklist
+        """
+
+        PeakPicking_and_Deisotoping.peaklist_fromrawcsv(int(self.noisesections_val.get()), int(self.signalabovenoise_val.get()), 190)
+
+
 
 
 
