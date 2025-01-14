@@ -562,26 +562,31 @@ def csvfile_parser(csv_file):
     peak_list = []
     with open(csv_file, 'r') as peaks_file:
         lines = list(peaks_file)
-        print(lines)
+        # print(lines)
         for line in lines:
             if line.startswith("#"):
                 continue
             line = line.rstrip('\n')
             splits = line.split(',')
-            print(splits)
+            # print(splits)
 
             arg_list = []
             for value in splits:
                 if value:
                     arg_list.append(value)
 
-            print(arg_list)
+            # print(arg_list)
             # re-organize arg list to match expected input format
 
             mz = arg_list[0]
             charge = arg_list[1]
             intensity = arg_list[2]
-            isotopicenvelope_centroid = arg_list[4]
+            # If using the in-house peak picking
+            try:
+                isotopicenvelope_centroid = arg_list[4]
+            except IndexError:
+                isotopicenvelope_centroid = ""
+
 
             if str(charge).isnumeric():
 
